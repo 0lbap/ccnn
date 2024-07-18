@@ -6,7 +6,7 @@ void test_model() {
   int t1_chans = 1;
   int t1_rows = 8;
   int t1_cols = 8;
-  std::vector< std::vector< std::vector<float> > > t1(t1_chans, std::vector< std::vector<float> >(t1_rows, std::vector<float>(t1_cols, 1)));
+  std::vector< std::vector< std::vector<float> > > t1(t1_chans, std::vector< std::vector<float> >(t1_rows, std::vector<float>(t1_cols, 0)));
 
   float cpt = 0;
   for (int i = 0; i < t1_rows; i++) {
@@ -67,6 +67,4 @@ void test_model() {
   tensor_print_3d(t3);
 
   std::cout << "------------------------------------------------------------" << std::endl;
-
-  std::cout << "Done." << std::endl;
 }
