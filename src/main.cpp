@@ -22,26 +22,28 @@ void tensor_print_3d(std::vector< std::vector< std::vector<float> > > tensor) {
   }
 }
 
-std::vector< std::vector< std::vector<float> > > tensor_conv_2d(std::vector< std::vector<float> > tensor, std::vector< std::vector< std::vector<float> > > filter) {
-  int f_chans = filter.size();
-  int f_rows = filter[0].size();
-  int f_cols = filter[0][0].size();
-  int t_rows = tensor.size();
-  int t_cols = tensor[0].size();
-  int res_chans = f_chans;
+std::vector< std::vector< std::vector<float> > > tensor_conv_3d(std::vector< std::vector< std::vector<float> > > tensor, std::vector< std::vector< std::vector< std::vector<float> > > > filters) {
+  int n_f = filters.size();
+  int f_chans = filters[0].size();
+  int f_rows = filters[0][0].size();
+  int f_cols = filters[0][0][0].size();
+  int t_chans = tensor.size();
+  int t_rows = tensor[0].size();
+  int t_cols = tensor[0][0].size();
+  int res_chans = n_f;
   int res_rows = t_rows - f_rows + 1;
   int res_cols = t_cols - f_cols + 1;
   std::vector< std::vector< std::vector<float> > > res(res_chans, std::vector< std::vector<float> >(res_rows, std::vector<float>(res_cols, 0)));
-  for (int i = 0; i < res_chans; i++) {
-    for (int j = 0; j < res_rows; j++) {
-      for (int k = 0; k < res_cols; k++) {
-        float acc = 0;
-        for (int l = 0; l < f_rows; l++) {
-          for (int m = 0; m < f_cols; m++) {
-            acc += tensor[j + l][k + m] * filter[i][l][m];
+  for (int on = 0; on < res_chans; on++) {
+    for (int in = 0; in < t_chans; in++) {
+      for (int oy = 0; oy < res_rows; oy++) {
+        for (int ox = 0; ox < res_cols; ox++) {
+          for (int wy = 0; wy < f_rows; wy++) {
+            for (int wx = 0; wx < f_cols; wx++) {
+              res[on][oy][ox] += tensor[in][oy + wy][ox + wx] * filters[on][in][wy][wx];
+            }
           }
         }
-        res[i][j][k] = acc;
       }
     }
   }
@@ -131,20 +133,26 @@ int main(int, char **) {
     }
   }
 
-  // Set up filters
-  int f1_chans = 2;
+  // Set up 2 filters of size 3x3x1 (for the first convolution)
+  int n_f1 = 2;
+  int f1_chans = 1;
   int f1_rows = 3;
   int f1_cols = 3;
-  std::vector< std::vector< std::vector<float> > > f1(f1_chans, std::vector< std::vector<float> >(f1_rows, std::vector<float>(f1_cols, 0)));
-  f1[0] = {
-    {1, 0, 1},
-    {0, 1, 0},
-    {1, 0, 1}
-  };
-  f1[1] = {
-    {1, 1, 1},
-    {1, 1, 1},
-    {1, 1, 1}
+  std::vector< std::vector< std::vector< std::vector<float> > > > f1(n_f1, std::vector< std::vector< std::vector<float> > >(f1_chans, std::vector< std::vector<float> >(f1_rows, std::vector<float>(f1_cols, 0))));
+  f1 = {
+    {
+      {
+        {1, 0, 1},
+        {0, 1, 0},
+        {1, 0, 1}
+      }
+    }, {
+      {
+        {1, 1, 1},
+        {1, 1, 1},
+        {1, 1, 1}
+      }
+    }
   };
 
   std::cout << "------------------------------------------------------------" << std::endl;
@@ -154,9 +162,12 @@ int main(int, char **) {
   std::cout << "Input tensor: " << t1[0].size() << "x" << t1[0][0].size() << "x" << t1.size() << std::endl;
   tensor_print_3d(t1);
   std::cout << "Kernel filters: " << f1[0].size() << "x" << f1[0][0].size() << "x" << f1.size() << std::endl;
-  tensor_print_3d(f1);
+  for (int i = 0; i < n_f1; i++) {
+    std::cout << "Filter " << i + 1 << ":" << std::endl;
+    tensor_print_3d(f1[i]);
+  }
   std::cout << "Processing Conv2D..." << std::endl;
-  std::vector< std::vector< std::vector<float> > > t2 = tensor_conv_2d(t1[0], f1); // apply convolution on first (and only) input data (since t1 depth is 1)
+  std::vector< std::vector< std::vector<float> > > t2 = tensor_conv_3d(t1, f1); // apply convolution
   t2 = tensor_apply_activation(t2, ACTIVATION_FUNCTION_RELU); // apply activation (ReLU)
   std::cout << "Output tensor: " << t2[0].size() << "x" << t2[0][0].size() << "x" << t2.size()  << std::endl;
   tensor_print_3d(t2);
