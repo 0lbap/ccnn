@@ -5,5 +5,7 @@ int main(int, char **) {
 
   test_model();
 
+  std::cout << "Done." << std::endl;
+
   return EXIT_SUCCESS;
 }

@@ -85,7 +85,6 @@ std::vector< std::vector< std::vector<float> > > tensor_apply_activation(std::ve
           for (int k = 0; k < t_cols; k++) {
             if (tensor[i][j][k] <= 0) {
               res[i][j][k] = 0;
-              std::cout << "aled" << std::endl;
             } else {
               res[i][j][k] = tensor[i][j][k];
             }
