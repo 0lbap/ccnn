@@ -67,4 +67,21 @@ void test_model() {
   tensor_print_3d(t3);
 
   std::cout << "------------------------------------------------------------" << std::endl;
+
+  // Transpose
+  std::cout << "Before transpose:" << std::endl;
+  std::vector< std::vector<float> > tt(3, std::vector<float>(2, 0));
+  cpt = 1;
+  for (int i = 0; i < 3; i++) {
+    for (int j = 0; j < 2; j++) {
+      tt[i][j] = cpt;
+      cpt++;
+    } 
+  }
+  tensor_print_2d(tt);
+  std::cout << "Processing transpose..." << std::endl;
+  std::vector< std::vector<float> > tt2 = tensor_transpose_2d(tt);
+  std::cout << "After transpose:" << std::endl;
+  tensor_print_2d(tt2);
+
 }

@@ -1,15 +1,34 @@
 #include <iostream>
 #include <vector>
 
-#define ACTIVATION_FUNCTION_TANH 0
-#define ACTIVATION_FUNCTION_RELU 1
-#define ACTIVATION_FUNCTION_SOFTMAX 2 // Not sure if this one works
+#define ACTIVATION_FUNCTION_TANH    0
+#define ACTIVATION_FUNCTION_RELU    1
+#define ACTIVATION_FUNCTION_SOFTMAX 2
+
+void tensor_print_1d(std::vector<float> tensor) {
+  std::cout << std::endl;
+  for (int i = 0; i < tensor.size(); i++) {
+    std::cout << tensor[i] << " ";
+  }
+  std::cout << std::endl;
+}
+
+void tensor_print_2d(std::vector< std::vector<float> > tensor) {
+  std::cout << std::endl;
+  for (int i = 0; i < tensor.size(); i++) {
+    for (int j = 0; j < tensor[0].size(); j++) {
+      std::cout << tensor[i][j] << " ";
+    }
+    std::cout << std::endl;
+  }
+  std::cout << std::endl;
+}
 
 void tensor_print_3d(std::vector< std::vector< std::vector<float> > > tensor) {
   std::cout << std::endl;
   for (int i = 0; i < tensor.size(); i++) {
     for (int j = 0; j < tensor[0].size(); j++) {
-      for (int k = 0; k < tensor[0].size(); k++) {
+      for (int k = 0; k < tensor[0][0].size(); k++) {
         std::cout << tensor[i][j][k] << " ";
       }
       std::cout << std::endl;
@@ -115,4 +134,41 @@ std::vector< std::vector< std::vector<float> > > tensor_apply_activation(std::ve
       break;
   }
   return res;
+}
+
+std::vector< float > tensor_flatten_3d(std::vector< std::vector< std::vector<float> > > tensor) {
+  int t_chans = tensor.size();
+  int t_rows = tensor[0].size();
+  int t_cols = tensor[0][0].size();
+  int res_cols = t_chans * t_rows * t_cols;
+  std::vector<float> res(res_cols, 0);
+  int i = 0;
+  for (int j = 0; j < t_chans; j++) {
+    for (int k = 0; k < t_rows; k++) {
+      for (int l = 0; l < t_cols; l++) {
+        res[i] = tensor[j][k][l];
+        i++;
+      }
+    }
+  }
+  return res;
+}
+
+std::vector< std::vector< float > > tensor_transpose_2d(std::vector< std::vector< float > > tensor) {
+  int t_rows = tensor.size();
+  int t_cols = tensor[0].size();
+  int res_rows = t_cols;
+  int res_cols = t_rows;
+  std::vector< std::vector< float > > res(res_rows, std::vector<float>(res_cols, 0));
+  for (int i = 0; i < t_rows; i++) {
+    for (int j = 0; j < t_cols; j++) {
+      res[j][i] = tensor[i][j];
+    }
+  }
+  return res;
+}
+
+std::vector< float > tensor_dense_1d(std::vector< float > tensor, std::vector< float > bias, int output_shape, int activation_function) {
+  // TODO
+  return tensor;
 }
