@@ -44,7 +44,7 @@ void test_model() {
   std::cout << "Layer 1: Conv2D" << std::endl;
   std::cout << "Input tensor: " << t1[0].size() << "x" << t1[0][0].size() << "x" << t1.size() << std::endl;
   tensor_print_3d(t1);
-  std::cout << "Kernel filters: " << f1[0].size() << "x" << f1[0][0].size() << "x" << f1.size() << std::endl;
+  std::cout << "Kernel filters (" << f1.size() << "): " << f1[0][0].size() << "x" << f1[0][0][0].size() << "x" << f1[0].size() << std::endl;
   for (int i = 0; i < n_f1; i++) {
     std::cout << "Filter " << i + 1 << ":" << std::endl;
     tensor_print_3d(f1[i]);

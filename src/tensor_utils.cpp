@@ -36,7 +36,13 @@ std::vector< std::vector< std::vector<float> > > tensor_conv_3d(std::vector< std
         for (int ox = 0; ox < res_cols; ox++) {
           for (int wy = 0; wy < f_rows; wy++) {
             for (int wx = 0; wx < f_cols; wx++) {
-              res[on][oy][ox] += tensor[in][oy + wy][ox + wx] * filters[on][in][wy][wx];
+              if (t_chans == f_chans) {
+                // If the number of channels of the input tensor is equal to the number of channels of each filter, then apply one filter channel per input channel
+                res[on][oy][ox] += tensor[in][oy + wy][ox + wx] * filters[on][in][wy][wx];
+              } else {
+                // Else, assume there is only one channel per filter and apply the first filter channel to all input channels 
+                res[on][oy][ox] += tensor[in][oy + wy][ox + wx] * filters[on][0][wy][wx];
+              }
             }
           }
         }
