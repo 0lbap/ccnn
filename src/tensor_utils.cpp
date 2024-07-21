@@ -46,11 +46,11 @@ Tensor1D tensor_softmax_1d(Tensor1D tensor) {
   float max_val = *std::max_element(tensor.begin(), tensor.end());
   Tensor1D exp_values(tensor.size());
   float sum_exp = 0.0f;
-  for (size_t i = 0; i < tensor.size(); i++) {
+  for (int i = 0; i < tensor.size(); i++) {
     exp_values[i] = std::exp(tensor[i] - max_val);
     sum_exp += exp_values[i];
   }
-  for (size_t i = 0; i < tensor.size(); i++) {
+  for (int i = 0; i < tensor.size(); i++) {
     exp_values[i] /= sum_exp;
   }
   return exp_values;
@@ -116,15 +116,7 @@ Tensor3D tensor_apply_activation_3d(Tensor3D tensor, int activation_function) {
     case ACTIVATION_FUNCTION_SOFTMAX:
       for (int i = 0; i < t_chans; i++) {
         for (int j = 0; j < t_rows; j++) {
-          float maxVal = *max_element(tensor[i][j].begin(), tensor[i][j].end());
-          float sumExp = 0.0f;
-          for (int k = 0; k < t_cols; k++) {
-            res[i][j][k] = exp(tensor[i][j][k] - maxVal);
-            sumExp += res[i][j][k];
-          }
-          for (int k = 0; k < res[i][j].size(); k++) {
-            res[i][j][k] /= sumExp;
-          }
+          res[i][j] = tensor_softmax_1d(tensor[i][j]);
         }
       }
       break;
