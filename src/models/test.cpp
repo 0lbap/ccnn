@@ -163,11 +163,11 @@ void test_model() {
   Tensor1D input1(3, 0);
   input1 = {1.0, 2.0, 3.0};
   Tensor1D bias1(2, 0);
-  bias1 = {0.1, 0.2};
+  bias1 = {0.0, 0.0};
   Tensor2D weights1(2, Tensor1D(3, 0));
   weights1 = {
-    {0.1, -0.2, -0.3},
-    {-0.4, -0.5, 0.6}
+    {0.1, 0.1, 0.1},
+    {0.1, 0.1, 0.1}
   };
   std::cout << "Input:" << std::endl;
   tensor_print_1d(input1);
@@ -175,7 +175,7 @@ void test_model() {
   tensor_print_1d(bias1);
   std::cout << "Weights:" << std::endl;
   tensor_print_2d(weights1);
-  Tensor1D output1 = tensor_dense_1d(input1, weights1, bias1, ACTIVATION_FUNCTION_RELU);
+  Tensor1D output1 = tensor_dense_1d(input1, weights1, bias1, ACTIVATION_FUNCTION_SOFTMAX);
   std::cout << "After dense:" << std::endl;
   tensor_print_1d(output1);
 }

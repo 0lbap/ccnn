@@ -42,6 +42,20 @@ void tensor_print_3d(Tensor3D tensor) {
   }
 }
 
+Tensor1D tensor_softmax_1d(Tensor1D tensor) {
+  float max_val = *std::max_element(tensor.begin(), tensor.end());
+  Tensor1D exp_values(tensor.size());
+  float sum_exp = 0.0f;
+  for (size_t i = 0; i < tensor.size(); i++) {
+    exp_values[i] = std::exp(tensor[i] - max_val);
+    sum_exp += exp_values[i];
+  }
+  for (size_t i = 0; i < tensor.size(); i++) {
+    exp_values[i] /= sum_exp;
+  }
+  return exp_values;
+}
+
 Tensor2D tensor_transpose_2d(Tensor2D tensor) {
   int t_rows = tensor.size();
   int t_cols = tensor[0].size();
@@ -196,25 +210,29 @@ Tensor1D tensor_dense_1d(Tensor1D tensor, Tensor2D weights, Tensor1D bias, int a
   int t_cols = tensor.size();
   int res_cols = weights.size();
   Tensor1D res(res_cols, 0);
-  for (int i = 0; i < res_cols; ++i) {
-    for (int j = 0; j < t_cols; ++j) {
+  for (int i = 0; i < res_cols; i++) {
+    for (int j = 0; j < t_cols; j++) {
       res[i] += tensor[j] * weights[i][j];
     }
     res[i] += bias[i];
-    switch (activation_function) {
-      case ACTIVATION_FUNCTION_TANH:
+  }
+  switch (activation_function) {
+    case ACTIVATION_FUNCTION_TANH:
+      for (int i = 0; i < res_cols; i++) {
         res[i] = std::tanh(res[i]);
-        break;
-      case ACTIVATION_FUNCTION_RELU:
+      }
+      break;
+    case ACTIVATION_FUNCTION_RELU:
+      for (int i = 0; i < res_cols; i++) {
         res[i] = std::max(0.0f, res[i]);
-        break;
-      case ACTIVATION_FUNCTION_SOFTMAX:
-        res[i] = 1.0f / (1.0f + std::exp(-res[i]));
-        break;
-      case ACTIVATION_FUNCTION_NONE:
-      default:
-        break;
-    }
+      }
+      break;
+    case ACTIVATION_FUNCTION_SOFTMAX:
+      res = tensor_softmax_1d(res);
+      break;
+    case ACTIVATION_FUNCTION_NONE:
+    default:
+      break;
   }
   return res;
 }
