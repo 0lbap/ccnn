@@ -1,5 +1,5 @@
+#include "tensor_utils.hpp"
 #include <iostream>
-#include <vector>
 
 #define ACTIVATION_FUNCTION_NONE    0
 #define ACTIVATION_FUNCTION_TANH    1
