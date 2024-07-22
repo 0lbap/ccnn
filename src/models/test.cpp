@@ -2,7 +2,7 @@
 #include <iostream>
 #include "../tensor_utils.hpp"
 
-void run_model() {
+void run_model(int batch_size) {
   // Set up input tensor
   int t1_chans = 1;
   int t1_rows = 8;
@@ -118,7 +118,7 @@ void run_model() {
   Tensor1D output1 = tensor_dense_1d(input1, weights1, bias1, ACTIVATION_FUNCTION_SOFTMAX);
 }
 
-void run_model_debug() {
+void run_model_debug(int batch_size) {
   // Set up input tensor
   int t1_chans = 1;
   int t1_rows = 8;
