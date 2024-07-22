@@ -1,5 +1,6 @@
 #include <vector>
-#include "../tensor_utils.cpp"
+#include <iostream>
+#include "../tensor_utils.hpp"
 
 void test_model() {
   // Set up input tensor
