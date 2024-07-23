@@ -1,3 +1,4 @@
+#include <string.h>
 #include "models/test.cpp"
 
 int main(int argc, char *argv[]) {
