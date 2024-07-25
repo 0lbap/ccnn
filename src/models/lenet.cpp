@@ -281,35 +281,52 @@ void run_model(int batch_size) {
   Tensor1D b_fc2(fc_2, 0);
   Tensor1D b_fc3(fc_3, 0);
 
-  // Set up output batch
-  std::vector<Tensor1D> output(batch_size, Tensor1D(fc_3, 0));
-
+  // Conv2D
+  std::vector<Tensor3D> output1(batch_size, Tensor3D(6, Tensor2D(24, Tensor1D(24, 0))));
   for (int batch_id = 0; batch_id < batch_size; batch_id++) {
-    // Conv2D
-    Tensor3D t2 = tensor_conv_3d(t1, f1, ACTIVATION_FUNCTION_RELU);
-    
-    // AveragePooling2D
-    Tensor3D t3 = tensor_avg_pooling_3d(t2);
+    output1[batch_id] = tensor_conv_3d(batch[batch_id], f1, ACTIVATION_FUNCTION_RELU);
+  }
 
-    // Conv2D
-    Tensor3D t4 = tensor_conv_3d(t3, f2, ACTIVATION_FUNCTION_RELU);
-    
-    // AveragePooling2D
-    Tensor3D t5 = tensor_avg_pooling_3d(t4);
+  // AveragePooling2D
+  std::vector<Tensor3D> output2(batch_size, Tensor3D(6, Tensor2D(12, Tensor1D(12, 0))));
+  for (int batch_id = 0; batch_id < batch_size; batch_id++) {
+    output2[batch_id] = tensor_avg_pooling_3d(output1[batch_id]);
+  }
 
-    // Flatten
-    Tensor1D t6 = tensor_flatten_3d(t5);
+  // Conv2D
+  std::vector<Tensor3D> output3(batch_size, Tensor3D(16, Tensor2D(8, Tensor1D(8, 0))));
+  for (int batch_id = 0; batch_id < batch_size; batch_id++) {
+    output3[batch_id] = tensor_conv_3d(output2[batch_id], f2, ACTIVATION_FUNCTION_RELU);
+  }
 
-    // Dense
-    Tensor1D t7 = tensor_dense_1d(t6, f_fc1, b_fc1, ACTIVATION_FUNCTION_RELU);
+  // AveragePooling2D
+  std::vector<Tensor3D> output4(batch_size, Tensor3D(16, Tensor2D(4, Tensor1D(4, 0))));
+  for (int batch_id = 0; batch_id < batch_size; batch_id++) {
+    output4[batch_id] = tensor_avg_pooling_3d(output3[batch_id]);
+  }
 
-    // Dense
-    Tensor1D t8 = tensor_dense_1d(t7, f_fc2, b_fc2, ACTIVATION_FUNCTION_RELU);
+  // Flatten
+  std::vector<Tensor1D> output5(batch_size, Tensor1D(256, 0));
+  for (int batch_id = 0; batch_id < batch_size; batch_id++) {
+    output5[batch_id] = tensor_flatten_3d(output4[batch_id]);
+  }
 
-    // Dense
-    Tensor1D t9 = tensor_dense_1d(t8, f_fc3, b_fc3, ACTIVATION_FUNCTION_SOFTMAX);
+  // Dense
+  std::vector<Tensor1D> output6(batch_size, Tensor1D(120, 0));
+  for (int batch_id = 0; batch_id < batch_size; batch_id++) {
+    output6[batch_id] = tensor_dense_1d(output5[batch_id], f_fc1, b_fc1, ACTIVATION_FUNCTION_RELU);
+  }
 
-    output[batch_id] = t9;
+  // Dense
+  std::vector<Tensor1D> output7(batch_size, Tensor1D(84, 0));
+  for (int batch_id = 0; batch_id < batch_size; batch_id++) {
+    output7[batch_id] = tensor_dense_1d(output6[batch_id], f_fc2, b_fc2, ACTIVATION_FUNCTION_RELU);
+  }
+
+  // Dense
+  std::vector<Tensor1D> output8(batch_size, Tensor1D(10, 0));
+  for (int batch_id = 0; batch_id < batch_size; batch_id++) {
+    output8[batch_id] = tensor_dense_1d(output7[batch_id], f_fc3, b_fc3, ACTIVATION_FUNCTION_SOFTMAX);
   }
 }
 
@@ -592,109 +609,125 @@ void run_model_debug(int batch_size) {
   Tensor1D b_fc2(fc_2, 0);
   Tensor1D b_fc3(fc_3, 0);
 
-  // Set up output batch
-  std::vector<Tensor1D> output(batch_size, Tensor1D(fc_3, 0));
-
+  // Conv2D
+  std::vector<Tensor3D> output1(batch_size, Tensor3D(6, Tensor2D(24, Tensor1D(24, 0))));
   for (int batch_id = 0; batch_id < batch_size; batch_id++) {
     std::cout << "------------------------------------------------------------" << std::endl << std::endl;
     std::cout << "Batch " << batch_id + 1 << std::endl;
-
-    // Conv2D
     std::cout << "Layer 1: Conv2D" << std::endl;
-    std::cout << "Input tensor: " << t1[0].size() << "x" << t1[0][0].size() << "x" << t1.size() << std::endl;
-    tensor_print_3d(t1);
+    std::cout << "Input tensor: " << batch[batch_id][0].size() << "x" << batch[batch_id][0][0].size() << "x" << batch[batch_id].size() << std::endl;
+    tensor_print_3d(batch[batch_id]);
     std::cout << "Kernel filters (" << f1.size() << "): " << f1[0][0].size() << "x" << f1[0][0][0].size() << "x" << f1[0].size() << std::endl;
     for (int i = 0; i < n_f1; i++) {
       std::cout << "Filter " << i + 1 << ":" << std::endl;
       tensor_print_3d(f1[i]);
     }
     std::cout << "Processing Conv2D..." << std::endl;
-    Tensor3D t2 = tensor_conv_3d(t1, f1, ACTIVATION_FUNCTION_RELU);
-    std::cout << "Output tensor: " << t2[0].size() << "x" << t2[0][0].size() << "x" << t2.size() << std::endl;
-    tensor_print_3d(t2);
+    output1[batch_id] = tensor_conv_3d(batch[batch_id], f1, ACTIVATION_FUNCTION_RELU);
+    std::cout << "Output tensor: " << output1[batch_id][0].size() << "x" << output1[batch_id][0][0].size() << "x" << output1[batch_id].size() << std::endl;
+    tensor_print_3d(output1[batch_id]);
+  }
 
-    std::cout << "------------------------------------------------------------" << std::endl;
-    
-    // AveragePooling2D
+  // AveragePooling2D
+  std::vector<Tensor3D> output2(batch_size, Tensor3D(6, Tensor2D(12, Tensor1D(12, 0))));
+  for (int batch_id = 0; batch_id < batch_size; batch_id++) {
+    std::cout << "------------------------------------------------------------" << std::endl << std::endl;
+    std::cout << "Batch " << batch_id + 1 << std::endl;
     std::cout << "Layer 2: AveragePooling2D" << std::endl;
-    std::cout << "Input tensor: " << t2[0].size() << "x" << t2[0][0].size() << "x" << t2.size() << std::endl;
-    tensor_print_3d(t2);
+    std::cout << "Input tensor: " << output1[batch_id][0].size() << "x" << output1[batch_id][0][0].size() << "x" << output1[batch_id].size() << std::endl;
+    tensor_print_3d(output1[batch_id]);
     std::cout << "Processing AveragePooling2D..." << std::endl;
-    Tensor3D t3 = tensor_avg_pooling_3d(t2);
-    std::cout << "Output tensor: " << t3[0].size() << "x" << t3[0][0].size() << "x" << t3.size() << std::endl;
-    tensor_print_3d(t3);
+    output2[batch_id] = tensor_avg_pooling_3d(output1[batch_id]);
+    std::cout << "Output tensor: " << output2[batch_id][0].size() << "x" << output2[batch_id][0][0].size() << "x" << output2[batch_id].size() << std::endl;
+    tensor_print_3d(output2[batch_id]);
+  }
 
-    std::cout << "------------------------------------------------------------" << std::endl;
-
-    // Conv2D
+  // Conv2D
+  std::vector<Tensor3D> output3(batch_size, Tensor3D(16, Tensor2D(8, Tensor1D(8, 0))));
+  for (int batch_id = 0; batch_id < batch_size; batch_id++) {
+    std::cout << "------------------------------------------------------------" << std::endl << std::endl;
+    std::cout << "Batch " << batch_id + 1 << std::endl;
     std::cout << "Layer 3: Conv2D" << std::endl;
-    std::cout << "Input tensor: " << t3[0].size() << "x" << t3[0][0].size() << "x" << t3.size() << std::endl;
-    tensor_print_3d(t3);
+    std::cout << "Input tensor: " << output2[batch_id][0].size() << "x" << output2[batch_id][0][0].size() << "x" << output2[batch_id].size() << std::endl;
+    tensor_print_3d(output2[batch_id]);
     std::cout << "Kernel filters (" << f2.size() << "): " << f2[0][0].size() << "x" << f2[0][0][0].size() << "x" << f2[0].size() << std::endl;
     for (int i = 0; i < n_f2; i++) {
       std::cout << "Filter " << i + 1 << ":" << std::endl;
       tensor_print_3d(f2[i]);
     }
     std::cout << "Processing Conv2D..." << std::endl;
-    Tensor3D t4 = tensor_conv_3d(t3, f2, ACTIVATION_FUNCTION_RELU);
-    std::cout << "Output tensor: " << t4[0].size() << "x" << t4[0][0].size() << "x" << t4.size() << std::endl;
-    tensor_print_3d(t4);
-    
-    std::cout << "------------------------------------------------------------" << std::endl;
+    output3[batch_id] = tensor_conv_3d(output2[batch_id], f2, ACTIVATION_FUNCTION_RELU);
+    std::cout << "Output tensor: " << output3[batch_id][0].size() << "x" << output3[batch_id][0][0].size() << "x" << output3[batch_id].size() << std::endl;
+    tensor_print_3d(output3[batch_id]);
+  }
 
-    // AveragePooling2D
+  // AveragePooling2D
+  std::vector<Tensor3D> output4(batch_size, Tensor3D(16, Tensor2D(4, Tensor1D(4, 0))));
+  for (int batch_id = 0; batch_id < batch_size; batch_id++) {
+    std::cout << "------------------------------------------------------------" << std::endl << std::endl;
+    std::cout << "Batch " << batch_id + 1 << std::endl;
     std::cout << "Layer 4: AveragePooling2D" << std::endl;
-    std::cout << "Input tensor: " << t4[0].size() << "x" << t4[0][0].size() << "x" << t4.size() << std::endl;
-    tensor_print_3d(t4);
+    std::cout << "Input tensor: " << output3[batch_id][0].size() << "x" << output3[batch_id][0][0].size() << "x" << output3[batch_id].size() << std::endl;
+    tensor_print_3d(output3[batch_id]);
     std::cout << "Processing AveragePooling2D..." << std::endl;
-    Tensor3D t5 = tensor_avg_pooling_3d(t4);
-    std::cout << "Output tensor: " << t5[0].size() << "x" << t5[0][0].size() << "x" << t5.size() << std::endl;
-    tensor_print_3d(t5);
+    output4[batch_id] = tensor_avg_pooling_3d(output3[batch_id]);
+    std::cout << "Output tensor: " << output4[batch_id][0].size() << "x" << output4[batch_id][0][0].size() << "x" << output4[batch_id].size() << std::endl;
+    tensor_print_3d(output4[batch_id]);
+  }
 
+  // Flatten
+  std::vector<Tensor1D> output5(batch_size, Tensor1D(256, 0));
+  for (int batch_id = 0; batch_id < batch_size; batch_id++) {
     std::cout << "------------------------------------------------------------" << std::endl;
-
-    // Flatten
+    std::cout << "Batch " << batch_id + 1 << std::endl;
     std::cout << "Layer 5: Flatten" << std::endl;
-    std::cout << "Input tensor: " << t5[0].size() << "x" << t5[0][0].size() << "x" << t5.size() << std::endl;
-    tensor_print_3d(t5);
+    std::cout << "Input tensor: " << output4[batch_id][0].size() << "x" << output4[batch_id][0][0].size() << "x" << output4[batch_id].size() << std::endl;
+    tensor_print_3d(output4[batch_id]);
     std::cout << "Processing Flatten..." << std::endl;
-    Tensor1D t6 = tensor_flatten_3d(t5);
-    std::cout << "Output tensor: " << t6.size() << std::endl;
-    tensor_print_1d(t6);
+    output5[batch_id] = tensor_flatten_3d(output4[batch_id]);
+    std::cout << "Output tensor: " << output5[batch_id].size() << std::endl;
+    tensor_print_1d(output5[batch_id]);
+  }
 
+  // Dense
+  std::vector<Tensor1D> output6(batch_size, Tensor1D(120, 0));
+  for (int batch_id = 0; batch_id < batch_size; batch_id++) {
     std::cout << "------------------------------------------------------------" << std::endl;
-
-    // Dense
+    std::cout << "Batch " << batch_id + 1 << std::endl;
     std::cout << "Layer 6: Dense" << std::endl;
-    std::cout << "Input tensor: " << t6.size() << std::endl;
-    tensor_print_1d(t6);
+    std::cout << "Input tensor: " << output5[batch_id].size() << std::endl;
+    tensor_print_1d(output5[batch_id]);
     std::cout << "Processing Dense..." << std::endl;
-    Tensor1D t7 = tensor_dense_1d(t6, f_fc1, b_fc1, ACTIVATION_FUNCTION_RELU);
-    std::cout << "Output tensor: " << t7.size() << std::endl;
-    tensor_print_1d(t7);
+    output6[batch_id] = tensor_dense_1d(output5[batch_id], f_fc1, b_fc1, ACTIVATION_FUNCTION_RELU);
+    std::cout << "Output tensor: " << output6[batch_id].size() << std::endl;
+    tensor_print_1d(output6[batch_id]);
+  }
 
+  // Dense
+  std::vector<Tensor1D> output7(batch_size, Tensor1D(84, 0));
+  for (int batch_id = 0; batch_id < batch_size; batch_id++) {
     std::cout << "------------------------------------------------------------" << std::endl;
-
-    // Dense
+    std::cout << "Batch " << batch_id + 1 << std::endl;
     std::cout << "Layer 7: Dense" << std::endl;
-    std::cout << "Input tensor: " << t7.size() << std::endl;
-    tensor_print_1d(t7);
+    std::cout << "Input tensor: " << output6[batch_id].size() << std::endl;
+    tensor_print_1d(output6[batch_id]);
     std::cout << "Processing Dense..." << std::endl;
-    Tensor1D t8 = tensor_dense_1d(t7, f_fc2, b_fc2, ACTIVATION_FUNCTION_RELU);
-    std::cout << "Output tensor: " << t8.size() << std::endl;
-    tensor_print_1d(t8);
+    output7[batch_id] = tensor_dense_1d(output6[batch_id], f_fc2, b_fc2, ACTIVATION_FUNCTION_RELU);
+    std::cout << "Output tensor: " << output7[batch_id].size() << std::endl;
+    tensor_print_1d(output7[batch_id]);
+  }
 
+  // Dense
+  std::vector<Tensor1D> output8(batch_size, Tensor1D(10, 0));
+  for (int batch_id = 0; batch_id < batch_size; batch_id++) {
     std::cout << "------------------------------------------------------------" << std::endl;
-
-    // Dense
+    std::cout << "Batch " << batch_id + 1 << std::endl;
     std::cout << "Layer 8: Dense" << std::endl;
-    std::cout << "Input tensor: " << t8.size() << std::endl;
-    tensor_print_1d(t8);
+    std::cout << "Input tensor: " << output7[batch_id].size() << std::endl;
+    tensor_print_1d(output7[batch_id]);
     std::cout << "Processing Dense..." << std::endl;
-    Tensor1D t9 = tensor_dense_1d(t8, f_fc3, b_fc3, ACTIVATION_FUNCTION_SOFTMAX);
-    std::cout << "Output tensor: " << t9.size() << std::endl;
-    tensor_print_1d(t9);
-
-    output[batch_id] = t9;
+    output8[batch_id] = tensor_dense_1d(output7[batch_id], f_fc3, b_fc3, ACTIVATION_FUNCTION_SOFTMAX);
+    std::cout << "Output tensor: " << output8[batch_id].size() << std::endl;
+    tensor_print_1d(output8[batch_id]);
   }
 }
