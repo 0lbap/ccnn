@@ -1,9 +1,10 @@
 #include <string.h>
-#include "models/new_lenet.cpp"
+#include "models/lenet.cpp"
 
 int main(int argc, char *argv[]) {
   bool debug = false;
   int batch_size = 1;
+  std::vector<int> profile_indices;
 
   for (int i = 1; i < argc; i++) {
     if (strcmp(argv[i], "--debug") == 0 || strcmp(argv[i], "-d") == 0) {
@@ -15,6 +16,16 @@ int main(int argc, char *argv[]) {
         std::cerr << "Invalid batch size. It must be a positive integer." << std::endl;
         return EXIT_FAILURE;
       }
+    } else if (strncmp(argv[i], "--profile=", 10) == 0) {
+      char* profile_values = argv[i] + 10;
+      char* token = strtok(profile_values, ",");
+      while (token != nullptr) {
+        int index = std::atoi(token);
+        if (index >= 0) {
+          profile_indices.push_back(index);
+        }
+        token = strtok(nullptr, ",");
+      }
     }
   }
 
@@ -23,7 +34,7 @@ int main(int argc, char *argv[]) {
     run_model_debug(batch_size);
     std::cout << "Done." << std::endl;
   } else {
-    run_model(batch_size);
+    run_model(batch_size, profile_indices);
   }
 
   return EXIT_SUCCESS;

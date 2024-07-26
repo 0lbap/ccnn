@@ -1,7 +1,8 @@
 #include <iostream>
+#include <vector>
 #include "../tensor_utils.hpp"
 
-void run_model(int batch_size) {
+void run_model(int batch_size, std::vector<int> profile_indices) {
   // Set up input tensor
   int t1_chans = 1;
   int t1_rows = 8;
