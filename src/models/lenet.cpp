@@ -5,11 +5,17 @@
 #include "../profiling_utils.hpp"
 
 void run_model(int batch_size, std::vector<int> profile_indices) {
-  // Initialize profiling
-  ProfilingData pd = profiling_init();
+  // Structure of data used for profiling
+  ProfilingData pd;
 
   // Variable used to check if a layer need profiling
   bool need_to_profile_layer = false;
+
+  if (!profile_indices.empty()) {
+    // Initialize profiling
+    pd = profiling_init();
+    profiling_print_header();
+  }
 
   // Set up one input tensor
   int t1_chans = 1;
@@ -447,8 +453,6 @@ void run_model(int batch_size, std::vector<int> profile_indices) {
   float b_fc3_vals[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
   Tensor1D b_fc3 = tensor_init_1d(fc_3, b_fc3_vals);
 
-  profiling_print_header();
-
   // Conv2D
   need_to_profile_layer = std::find(profile_indices.begin(), profile_indices.end(), 1) != profile_indices.end();
   if (need_to_profile_layer) {
@@ -473,7 +477,7 @@ void run_model(int batch_size, std::vector<int> profile_indices) {
   need_to_profile_layer = std::find(profile_indices.begin(), profile_indices.end(), 2) != profile_indices.end();
   if (need_to_profile_layer) {
     profiling_start(pd);
-    pd.name = "AveragePooling2D";
+    pd.name = "AvgPooling2D";
   }
   int output2_chans = 6;
   int output2_rows = 12;
@@ -512,7 +516,7 @@ void run_model(int batch_size, std::vector<int> profile_indices) {
   need_to_profile_layer = std::find(profile_indices.begin(), profile_indices.end(), 4) != profile_indices.end();
   if (need_to_profile_layer) {
     profiling_start(pd);
-    pd.name = "AveragePooling2D";
+    pd.name = "AvgPooling2D";
   }
   int output4_chans = 16;
   int output4_rows = 4;
@@ -603,8 +607,10 @@ void run_model(int batch_size, std::vector<int> profile_indices) {
 
   tensor_delete_2d(output8, batch_size);
 
-  // Shutdown profiling
-  profiling_shutdown();
+  if (!profile_indices.empty()) {
+    // Shutdown profiling
+    profiling_shutdown();
+  }
 }
 
 void run_model_debug(int batch_size) {
