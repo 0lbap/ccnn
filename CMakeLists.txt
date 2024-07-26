@@ -13,5 +13,11 @@ set(SOURCE_DIR ./src)
 # Collect all .cpp files in the source directory
 file(GLOB SOURCES "${SOURCE_DIR}/*.cpp")
 
+# Use the PAPI library for profiling
+find_library(PAPI_LIB papi)
+
 # Add the executable
 add_executable(ccnn ${SOURCES})
+
+# Link libraries to the executable
+target_link_libraries(ccnn ${PAPI_LIB})
