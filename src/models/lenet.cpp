@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <iostream>
 #include <vector>
 #include "../tensor_utils.hpp"
@@ -6,6 +7,9 @@
 void run_model(int batch_size, std::vector<int> profile_indices) {
   // Initialize profiling
   ProfilingData pd = profiling_init();
+
+  // Variable used to check if a layer need profiling
+  bool need_to_profile_layer = false;
 
   // Set up one input tensor
   int t1_chans = 1;
@@ -446,8 +450,11 @@ void run_model(int batch_size, std::vector<int> profile_indices) {
   profiling_print_header();
 
   // Conv2D
-  profiling_start(pd);
-  pd.name = "Conv2D";
+  need_to_profile_layer = std::find(profile_indices.begin(), profile_indices.end(), 1) != profile_indices.end();
+  if (need_to_profile_layer) {
+    profiling_start(pd);
+    pd.name = "Conv2D";
+  }
   int output1_chans = 6;
   int output1_rows = 24;
   int output1_cols = 24;
@@ -457,12 +464,17 @@ void run_model(int batch_size, std::vector<int> profile_indices) {
   }
   tensor_delete_4d(batch, batch_size, t1_chans, t1_rows);
   tensor_delete_4d(f1, n_f1, f1_chans, f1_rows);
-  profiling_stop(pd);
-  profiling_print_results(pd);
+  if (need_to_profile_layer) {
+    profiling_stop(pd);
+    profiling_print_results(pd);
+  }
 
   // AveragePooling2D
-  profiling_start(pd);
-  pd.name = "AveragePooling2D";
+  need_to_profile_layer = std::find(profile_indices.begin(), profile_indices.end(), 2) != profile_indices.end();
+  if (need_to_profile_layer) {
+    profiling_start(pd);
+    pd.name = "AveragePooling2D";
+  }
   int output2_chans = 6;
   int output2_rows = 12;
   int output2_cols = 12;
@@ -471,12 +483,17 @@ void run_model(int batch_size, std::vector<int> profile_indices) {
     output2[batch_id] = tensor_avg_pooling_3d(output1[batch_id], output1_chans, output1_rows, output1_cols);
   }
   tensor_delete_4d(output1, batch_size, output1_chans, output1_rows);
-  profiling_stop(pd);
-  profiling_print_results(pd);
+  if (need_to_profile_layer) {
+    profiling_stop(pd);
+    profiling_print_results(pd);
+  }
 
   // Conv2D
-  profiling_start(pd);
-  pd.name = "Conv2D";
+  need_to_profile_layer = std::find(profile_indices.begin(), profile_indices.end(), 3) != profile_indices.end();
+  if (need_to_profile_layer) {
+    profiling_start(pd);
+    pd.name = "Conv2D";
+  }
   int output3_chans = 16;
   int output3_rows = 8;
   int output3_cols = 8;
@@ -486,12 +503,17 @@ void run_model(int batch_size, std::vector<int> profile_indices) {
   }
   tensor_delete_4d(output2, batch_size, output2_chans, output2_rows);
   tensor_delete_4d(f2, n_f2, f2_chans, f2_rows);
-  profiling_stop(pd);
-  profiling_print_results(pd);
+  if (need_to_profile_layer) {
+    profiling_stop(pd);
+    profiling_print_results(pd);
+  }
 
   // AveragePooling2D
-  profiling_start(pd);
-  pd.name = "AveragePooling2D";
+  need_to_profile_layer = std::find(profile_indices.begin(), profile_indices.end(), 4) != profile_indices.end();
+  if (need_to_profile_layer) {
+    profiling_start(pd);
+    pd.name = "AveragePooling2D";
+  }
   int output4_chans = 16;
   int output4_rows = 4;
   int output4_cols = 4;
@@ -500,24 +522,34 @@ void run_model(int batch_size, std::vector<int> profile_indices) {
     output4[batch_id] = tensor_avg_pooling_3d(output3[batch_id], output3_chans, output3_rows, output3_cols);
   }
   tensor_delete_4d(output3, batch_size, output3_chans, output3_rows);
-  profiling_stop(pd);
-  profiling_print_results(pd);
+  if (need_to_profile_layer) {
+    profiling_stop(pd);
+    profiling_print_results(pd);
+  }
 
   // Flatten
-  profiling_start(pd);
-  pd.name = "Flatten";
+  need_to_profile_layer = std::find(profile_indices.begin(), profile_indices.end(), 5) != profile_indices.end();
+  if (need_to_profile_layer) {
+    profiling_start(pd);
+    pd.name = "Flatten";
+  }
   int output5_cols = 256;
   Tensor2D output5 = tensor_2d(batch_size, output5_cols);
   for (int batch_id = 0; batch_id < batch_size; batch_id++) {
     output5[batch_id] = tensor_flatten_3d(output4[batch_id], output4_chans, output4_rows, output4_cols);
   }
   tensor_delete_4d(output4, batch_size, output4_chans, output4_rows);
-  profiling_stop(pd);
-  profiling_print_results(pd);
+  if (need_to_profile_layer) {
+    profiling_stop(pd);
+    profiling_print_results(pd);
+  }
 
   // Dense
-  profiling_start(pd);
-  pd.name = "Dense";
+  need_to_profile_layer = std::find(profile_indices.begin(), profile_indices.end(), 6) != profile_indices.end();
+  if (need_to_profile_layer) {
+    profiling_start(pd);
+    pd.name = "Dense";
+  }
   int output6_cols = 120;
   Tensor2D output6 = tensor_2d(batch_size, output6_cols);
   for (int batch_id = 0; batch_id < batch_size; batch_id++) {
@@ -526,12 +558,17 @@ void run_model(int batch_size, std::vector<int> profile_indices) {
   tensor_delete_2d(output5, batch_size);
   tensor_delete_2d(f_fc1, fc_1);
   tensor_delete_1d(b_fc1);
-  profiling_stop(pd);
-  profiling_print_results(pd);
+  if (need_to_profile_layer) {
+    profiling_stop(pd);
+    profiling_print_results(pd);
+  }
 
   // Dense
-  profiling_start(pd);
-  pd.name = "Dense";
+  need_to_profile_layer = std::find(profile_indices.begin(), profile_indices.end(), 7) != profile_indices.end();
+  if (need_to_profile_layer) {
+    profiling_start(pd);
+    pd.name = "Dense";
+  }
   int output7_cols = 84;
   Tensor2D output7 = tensor_2d(batch_size, output7_cols);
   for (int batch_id = 0; batch_id < batch_size; batch_id++) {
@@ -540,12 +577,17 @@ void run_model(int batch_size, std::vector<int> profile_indices) {
   tensor_delete_2d(output6, batch_size);
   tensor_delete_2d(f_fc2, fc_2);
   tensor_delete_1d(b_fc2);
-  profiling_stop(pd);
-  profiling_print_results(pd);
+  if (need_to_profile_layer) {
+    profiling_stop(pd);
+    profiling_print_results(pd);
+  }
 
   // Dense
-  profiling_start(pd);
-  pd.name = "Dense";
+  need_to_profile_layer = std::find(profile_indices.begin(), profile_indices.end(), 8) != profile_indices.end();
+  if (need_to_profile_layer) {
+    profiling_start(pd);
+    pd.name = "Dense";
+  }
   int output8_cols = 10;
   Tensor2D output8 = tensor_2d(batch_size, output8_cols);
   for (int batch_id = 0; batch_id < batch_size; batch_id++) {
@@ -554,8 +596,10 @@ void run_model(int batch_size, std::vector<int> profile_indices) {
   tensor_delete_2d(output7, batch_size);
   tensor_delete_2d(f_fc3, fc_3);
   tensor_delete_1d(b_fc3);
-  profiling_stop(pd);
-  profiling_print_results(pd);
+  if (need_to_profile_layer) {
+    profiling_stop(pd);
+    profiling_print_results(pd);
+  }
 
   tensor_delete_2d(output8, batch_size);
 
