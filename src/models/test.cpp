@@ -218,6 +218,8 @@ void run_model_debug(int batch_size) {
     std::cout << "Filter " << i + 1 << ":" << std::endl;
     tensor_print_3d(f1[i], f1_chans, f1_rows, f1_cols);
   }
+  std::cout << "Biases (" << b1_cols << "): " << std::endl;
+  tensor_print_1d(b1, b1_cols);
   std::cout << "Processing Conv2D..." << std::endl;
   int t2_chans = 2;
   int t2_rows = 6;
