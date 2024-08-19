@@ -1086,6 +1086,8 @@ void run_model_debug(int batch_size) {
       std::cout << "Filter " << i + 1 << ":" << std::endl;
       tensor_print_3d(f1[i], f1_chans, f1_rows, f1_cols);
     }
+    std::cout << "Biases (" << b1_cols << "): " << std::endl;
+   tensor_print_1d(b1, b1_cols);
     std::cout << "Processing Conv2D..." << std::endl;
     output1[batch_id] = tensor_conv_3d(batch[batch_id], t1_chans, t1_rows, t1_cols, f1, n_f1, f1_chans, f1_rows, f1_cols, b1, ACTIVATION_FUNCTION_RELU);
     std::cout << "Output tensor: " << output1_rows << "x" << output1_cols << "x" << output1_chans << std::endl;
@@ -1128,6 +1130,8 @@ void run_model_debug(int batch_size) {
       std::cout << "Filter " << i + 1 << ":" << std::endl;
       tensor_print_3d(f2[i], f2_chans, f2_rows, f2_cols);
     }
+    std::cout << "Biases (" << b2_cols << "): " << std::endl;
+    tensor_print_1d(b2, b2_cols);
     std::cout << "Processing Conv2D..." << std::endl;
     output3[batch_id] = tensor_conv_3d(output2[batch_id], output2_chans, output2_rows, output2_cols, f2, n_f2, f2_chans, f2_rows, f2_cols, b2, ACTIVATION_FUNCTION_RELU);
     std::cout << "Output tensor: " << output3_rows << "x" << output3_cols << "x" << output3_chans << std::endl;
