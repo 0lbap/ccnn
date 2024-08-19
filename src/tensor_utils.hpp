@@ -57,7 +57,7 @@ Tensor2D tensor_matmul_2d(Tensor2D m1, int m1_rows, int m1_cols, Tensor2D m2, in
 Tensor3D tensor_apply_activation_3d(Tensor3D tensor, int chans, int rows, int cols, int activation_function);
 
 // Function to perform convolution on a 3D tensor with a set of filters
-Tensor3D tensor_conv_3d(Tensor3D tensor, int t_chans, int t_rows, int t_cols, Tensor4D filters, int n_f, int f_chans, int f_rows, int f_cols, int activation_function);
+Tensor3D tensor_conv_3d(Tensor3D tensor, int t_chans, int t_rows, int t_cols, Tensor4D filters, int n_f, int f_chans, int f_rows, int f_cols, Tensor1D biases, int activation_function);
 
 // Function to perform average pooling on a 3D tensor
 Tensor3D tensor_avg_pooling_3d(Tensor3D tensor, int t_chans, int t_rows, int t_cols);

@@ -231,7 +231,7 @@ Tensor3D tensor_apply_activation_3d(Tensor3D tensor, int chans, int rows, int co
 }
 
 // Function to perform convolution on a 3D tensor with a set of filters
-Tensor3D tensor_conv_3d(Tensor3D tensor, int t_chans, int t_rows, int t_cols, Tensor4D filters, int n_f, int f_chans, int f_rows, int f_cols, int activation_function) {
+Tensor3D tensor_conv_3d(Tensor3D tensor, int t_chans, int t_rows, int t_cols, Tensor4D filters, int n_f, int f_chans, int f_rows, int f_cols, Tensor1D biases, int activation_function) {
   int res_chans = n_f;
   int res_rows = t_rows - f_rows + 1;
   int res_cols = t_cols - f_cols + 1;
@@ -252,6 +252,12 @@ Tensor3D tensor_conv_3d(Tensor3D tensor, int t_chans, int t_rows, int t_cols, Te
             }
           }
         }
+      }
+    }
+    // Add the bias for this output channel
+    for (int oy = 0; oy < res_rows; oy++) {
+      for (int ox = 0; ox < res_cols; ox++) {
+        res[on][oy][ox] += biases[on];
       }
     }
   }
