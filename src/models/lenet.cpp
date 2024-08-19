@@ -109,6 +109,11 @@ void run_model(int batch_size, std::vector<int> profile_indices) {
     0.0,  0.1, -0.1,  0.1, -0.2
   };
   Tensor4D f1 = tensor_init_4d(n_f1, f1_chans, f1_rows, f1_cols, f1_vals);
+  
+  // Set up 6 biases (for the first convolution)
+  int b1_cols = 6;
+  float b1_vals[] = {0, 0, 0, 0, 0, 0};
+  Tensor1D b1 = tensor_init_1d(b1_cols, b1_vals);
 
   // Set up 16 filters of size 5x5x1 (for the second convolution)
   int n_f2 = 16;
@@ -213,6 +218,11 @@ void run_model(int batch_size, std::vector<int> profile_indices) {
     0.20, -0.25,  0.10, -0.05,  0.15,
   };
   Tensor4D f2 = tensor_init_4d(n_f2, f2_chans, f2_rows, f2_cols, f2_vals);
+
+  // Set up 16 biases (for the second convolution)
+  int b2_cols = 16;
+  float b2_vals[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  Tensor1D b2 = tensor_init_1d(b2_cols, b2_vals);
 
   // Set up fully connected layers output shapes
   int fc_0 = 256;
@@ -464,7 +474,7 @@ void run_model(int batch_size, std::vector<int> profile_indices) {
   int output1_cols = 24;
   Tensor4D output1 = tensor_4d(batch_size, output1_chans, output1_rows, output1_cols);
   for (int batch_id = 0; batch_id < batch_size; batch_id++) {
-    output1[batch_id] = tensor_conv_3d(batch[batch_id], t1_chans, t1_rows, t1_cols, f1, n_f1, f1_chans, f1_rows, f1_cols, ACTIVATION_FUNCTION_RELU);
+    output1[batch_id] = tensor_conv_3d(batch[batch_id], t1_chans, t1_rows, t1_cols, f1, n_f1, f1_chans, f1_rows, f1_cols, b1, ACTIVATION_FUNCTION_RELU);
   }
   tensor_delete_4d(batch, batch_size, t1_chans, t1_rows);
   tensor_delete_4d(f1, n_f1, f1_chans, f1_rows);
@@ -503,7 +513,7 @@ void run_model(int batch_size, std::vector<int> profile_indices) {
   int output3_cols = 8;
   Tensor4D output3 = tensor_4d(batch_size, output3_chans, output3_rows, output3_cols);
   for (int batch_id = 0; batch_id < batch_size; batch_id++) {
-    output3[batch_id] = tensor_conv_3d(output2[batch_id], output2_chans, output2_rows, output2_cols, f2, n_f2, f2_chans, f2_rows, f2_cols, ACTIVATION_FUNCTION_RELU);
+    output3[batch_id] = tensor_conv_3d(output2[batch_id], output2_chans, output2_rows, output2_cols, f2, n_f2, f2_chans, f2_rows, f2_cols, b2, ACTIVATION_FUNCTION_RELU);
   }
   tensor_delete_4d(output2, batch_size, output2_chans, output2_rows);
   tensor_delete_4d(f2, n_f2, f2_chans, f2_rows);
@@ -706,6 +716,11 @@ void run_model_debug(int batch_size) {
     0.0,  0.1, -0.1,  0.1, -0.2
   };
   Tensor4D f1 = tensor_init_4d(n_f1, f1_chans, f1_rows, f1_cols, f1_vals);
+  
+  // Set up 6 biases (for the first convolution)
+  int b1_cols = 6;
+  float b1_vals[] = {0, 0, 0, 0, 0, 0};
+  Tensor1D b1 = tensor_init_1d(b1_cols, b1_vals);
 
   // Set up 16 filters of size 5x5x1 (for the second convolution)
   int n_f2 = 16;
@@ -810,6 +825,11 @@ void run_model_debug(int batch_size) {
     0.20, -0.25,  0.10, -0.05,  0.15,
   };
   Tensor4D f2 = tensor_init_4d(n_f2, f2_chans, f2_rows, f2_cols, f2_vals);
+
+  // Set up 16 biases (for the second convolution)
+  int b2_cols = 16;
+  float b2_vals[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  Tensor1D b2 = tensor_init_1d(b2_cols, b2_vals);
 
   // Set up fully connected layers output shapes
   int fc_0 = 256;
@@ -1067,7 +1087,7 @@ void run_model_debug(int batch_size) {
       tensor_print_3d(f1[i], f1_chans, f1_rows, f1_cols);
     }
     std::cout << "Processing Conv2D..." << std::endl;
-    output1[batch_id] = tensor_conv_3d(batch[batch_id], t1_chans, t1_rows, t1_cols, f1, n_f1, f1_chans, f1_rows, f1_cols, ACTIVATION_FUNCTION_RELU);
+    output1[batch_id] = tensor_conv_3d(batch[batch_id], t1_chans, t1_rows, t1_cols, f1, n_f1, f1_chans, f1_rows, f1_cols, b1, ACTIVATION_FUNCTION_RELU);
     std::cout << "Output tensor: " << output1_rows << "x" << output1_cols << "x" << output1_chans << std::endl;
     tensor_print_3d(output1[batch_id], output1_chans, output1_rows, output1_cols);
   }
@@ -1109,7 +1129,7 @@ void run_model_debug(int batch_size) {
       tensor_print_3d(f2[i], f2_chans, f2_rows, f2_cols);
     }
     std::cout << "Processing Conv2D..." << std::endl;
-    output3[batch_id] = tensor_conv_3d(output2[batch_id], output2_chans, output2_rows, output2_cols, f2, n_f2, f2_chans, f2_rows, f2_cols, ACTIVATION_FUNCTION_RELU);
+    output3[batch_id] = tensor_conv_3d(output2[batch_id], output2_chans, output2_rows, output2_cols, f2, n_f2, f2_chans, f2_rows, f2_cols, b2, ACTIVATION_FUNCTION_RELU);
     std::cout << "Output tensor: " << output3_rows << "x" << output3_cols << "x" << output3_chans << std::endl;
     tensor_print_3d(output3[batch_id], output3_chans, output3_rows, output3_cols);
   }

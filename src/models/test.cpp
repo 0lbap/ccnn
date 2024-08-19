@@ -33,11 +33,16 @@ void run_model(int batch_size, std::vector<int> profile_indices) {
   };
   Tensor4D f1 = tensor_init_4d(n_f1, f1_chans, f1_rows, f1_cols, f1_vals);
   
+  // Set up 2 biases (for the first convolution)
+  int b1_cols = 2;
+  float b1_vals[] = {0, 0};
+  Tensor1D b1 = tensor_init_1d(b1_cols, b1_vals);
+
   // Conv2D
   int t2_chans = 2;
   int t2_rows = 6;
   int t2_cols = 6;
-  Tensor3D t2 = tensor_conv_3d(t1, t1_chans, t1_rows, t1_cols, f1, n_f1, f1_chans, f1_rows, f1_cols, ACTIVATION_FUNCTION_RELU); // apply convolution
+  Tensor3D t2 = tensor_conv_3d(t1, t1_chans, t1_rows, t1_cols, f1, n_f1, f1_chans, f1_rows, f1_cols, b1, ACTIVATION_FUNCTION_RELU); // apply convolution
   tensor_delete_3d(t1, t1_chans, t1_rows);
 
   // AveragePooling2D
@@ -197,6 +202,11 @@ void run_model_debug(int batch_size) {
   };
   Tensor4D f1 = tensor_init_4d(n_f1, f1_chans, f1_rows, f1_cols, f1_vals);
   
+  // Set up 2 biases (for the first convolution)
+  int b1_cols = 2;
+  float b1_vals[] = {0, 0};
+  Tensor1D b1 = tensor_init_1d(b1_cols, b1_vals);
+
   std::cout << "------------------------------------------------------------" << std::endl;
 
   // Conv2D
@@ -212,7 +222,7 @@ void run_model_debug(int batch_size) {
   int t2_chans = 2;
   int t2_rows = 6;
   int t2_cols = 6;
-  Tensor3D t2 = tensor_conv_3d(t1, t1_chans, t1_rows, t1_cols, f1, n_f1, f1_chans, f1_rows, f1_cols, ACTIVATION_FUNCTION_RELU); // apply convolution
+  Tensor3D t2 = tensor_conv_3d(t1, t1_chans, t1_rows, t1_cols, f1, n_f1, f1_chans, f1_rows, f1_cols, b1, ACTIVATION_FUNCTION_RELU); // apply convolution
   std::cout << "Output tensor: " << t2_rows << "x" << t2_cols << "x" << t2_chans << std::endl;
   tensor_print_3d(t2, t2_chans, t2_rows, t2_cols);
   tensor_delete_3d(t1, t1_chans, t1_rows);
