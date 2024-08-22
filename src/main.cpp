@@ -1,5 +1,5 @@
 #include <string.h>
-#include "models/lenet.cpp"
+#include "models/lenet/lenet.cpp"
 
 int main(int argc, char *argv[]) {
   bool debug = false;

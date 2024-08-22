@@ -297,6 +297,65 @@ Tensor1D tensor_flatten_3d(Tensor3D tensor, int chans, int rows, int cols) {
   return res;
 }
 
+// Function to calculate the index based on shape and strides
+int calculate_index(int *shape, int *strides, int *indices, int dims) {
+  int index = 0;
+  for (int i = 0; i < dims; i++) {
+    index += strides[i] * indices[i];
+  }
+  return index;
+}
+
+// Function to transpose a 1D tensor to a given shape permutation
+Tensor1D tensor_transpose_perm_1d(Tensor1D tensor, int t_cols, int* input_shape, int* perm, int dims) {
+  int res_cols = t_cols;
+  Tensor1D res = tensor_1d(res_cols);
+  int input_strides[dims];
+  int output_strides[dims];
+  int output_shape[dims];
+  
+  // Calculate strides for input array
+  input_strides[dims - 1] = 1;
+  for (int i = dims - 2; i >= 0; i--) {
+    input_strides[i] = input_strides[i + 1] * input_shape[i + 1];
+  }
+
+  // Get the shape of the output array and calculate strides for the output array
+  for (int i = 0; i < dims; i++) {
+    output_shape[i] = input_shape[perm[i]];
+  }
+
+  output_strides[dims - 1] = 1;
+  for (int i = dims - 2; i >= 0; i--) {
+    output_strides[i] = output_strides[i + 1] * output_shape[i + 1];
+  }
+
+  // Iterate through each element of the input array
+  int indices[dims];
+  for (indices[0] = 0; indices[0] < input_shape[0]; indices[0]++) {
+    for (indices[1] = 0; indices[1] < input_shape[1]; indices[1]++) {
+      for (indices[2] = 0; indices[2] < input_shape[2]; indices[2]++) {
+        for (indices[3] = 0; indices[3] < input_shape[3]; indices[3]++) {
+
+          // Map the indices based on the permutation
+          int new_indices[dims];
+          for (int i = 0; i < dims; i++) {
+              new_indices[i] = indices[perm[i]];
+          }
+
+          // Get the flat index of input and output based on the strides
+          int input_idx = calculate_index(input_shape, input_strides, indices, dims);
+          int output_idx = calculate_index(output_shape, output_strides, new_indices, dims);
+
+          // Assign the transposed value
+          res[output_idx] = tensor[input_idx];
+        }
+      }
+    }
+  }
+  return res;
+}
+
 // Function to apply a dense layer to a 1D tensor
 Tensor1D tensor_dense_1d(Tensor1D tensor, int t_cols, Tensor2D weights, int w_rows, int w_cols, Tensor1D bias, int activation_function) {
   if (t_cols != w_cols) {
