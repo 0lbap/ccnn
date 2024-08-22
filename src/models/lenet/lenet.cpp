@@ -177,6 +177,16 @@ void run_model(int batch_size, std::vector<int> profile_indices) {
     profiling_print_results(pd);
   }
 
+  // Reorder the tensor
+  int output5bis_cols = 256;
+  Tensor2D output5bis = tensor_2d(batch_size, output5bis_cols);
+  int input_shape[4] = {1, output4_chans, output4_rows, output4_cols}; // Dimensions (1, 16, 4, 4)
+  int perm[4] = {0, 2, 3, 1}; // Desired permutation of dimensions (1, 4, 4, 16)
+  for (int batch_id = 0; batch_id < batch_size; batch_id++) {
+    output5bis[batch_id] = tensor_transpose_perm_1d(output5[batch_id], output5_cols, input_shape, perm, 4);
+  }
+  tensor_delete_2d(output5, batch_size);
+
   // Dense
   need_to_profile_layer = std::find(profile_indices.begin(), profile_indices.end(), 6) != profile_indices.end();
   if (need_to_profile_layer) {
@@ -186,9 +196,9 @@ void run_model(int batch_size, std::vector<int> profile_indices) {
   int output6_cols = 120;
   Tensor2D output6 = tensor_2d(batch_size, output6_cols);
   for (int batch_id = 0; batch_id < batch_size; batch_id++) {
-    output6[batch_id] = tensor_dense_1d(output5[batch_id], output5_cols, f_fc1, fc_1, fc_0,  b_fc1, ACTIVATION_FUNCTION_RELU);
+    output6[batch_id] = tensor_dense_1d(output5bis[batch_id], output5bis_cols, f_fc1, fc_1, fc_0,  b_fc1, ACTIVATION_FUNCTION_RELU);
   }
-  tensor_delete_2d(output5, batch_size);
+  tensor_delete_2d(output5bis, batch_size);
   tensor_delete_2d(f_fc1, fc_1);
   tensor_delete_1d(b_fc1);
   if (need_to_profile_layer) {
