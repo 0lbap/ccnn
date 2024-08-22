@@ -65,6 +65,9 @@ Tensor3D tensor_avg_pooling_3d(Tensor3D tensor, int t_chans, int t_rows, int t_c
 // Function to flatten a 3D tensor into a 1D tensor
 Tensor1D tensor_flatten_3d(Tensor3D tensor, int chans, int rows, int cols);
 
+// Function to transpose a 1D tensor to a given shape permutation
+Tensor1D tensor_transpose_perm_1d(Tensor1D tensor, int t_cols, int* input_shape, int* perm, int dims);
+
 // Function to apply a dense layer to a 1D tensor
 Tensor1D tensor_dense_1d(Tensor1D tensor, int t_cols, Tensor2D weights, int w_rows, int w_cols, Tensor1D bias, int activation_function);
 

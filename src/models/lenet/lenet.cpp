@@ -400,7 +400,25 @@ void run_model_debug(int batch_size) {
     tensor_print_1d(output5[batch_id], output5_cols);
   }
   tensor_delete_4d(output4, batch_size, output4_chans, output4_rows);
-exit(0);
+
+  // Reorder the tensor
+  int output5bis_cols = 256;
+  Tensor2D output5bis = tensor_2d(batch_size, output5bis_cols);
+  int input_shape[4] = {1, output4_chans, output4_rows, output4_cols}; // Dimensions (1, 16, 4, 4)
+  int perm[4] = {0, 2, 3, 1}; // Desired permutation of dimensions (1, 4, 4, 16)
+  for (int batch_id = 0; batch_id < batch_size; batch_id++) {
+    std::cout << "------------------------------------------------------------" << std::endl;
+    std::cout << "Batch " << batch_id + 1 << std::endl;
+    std::cout << "Layer 5bis: Reordering" << std::endl;
+    std::cout << "Input tensor: " << output5_cols << std::endl;
+    tensor_print_1d(output5[batch_id], output5_cols);
+    std::cout << "Processing Reordering..." << std::endl;
+    output5bis[batch_id] = tensor_transpose_perm_1d(output5[batch_id], output5_cols, input_shape, perm, 4);
+    std::cout << "Output tensor: " << output5bis_cols << std::endl;
+    tensor_print_1d(output5bis[batch_id], output5bis_cols);
+  }
+  tensor_delete_2d(output5, batch_size);
+
   // Dense
   int output6_cols = 120;
   Tensor2D output6 = tensor_2d(batch_size, output6_cols);
@@ -408,14 +426,14 @@ exit(0);
     std::cout << "------------------------------------------------------------" << std::endl;
     std::cout << "Batch " << batch_id + 1 << std::endl;
     std::cout << "Layer 6: Dense" << std::endl;
-    std::cout << "Input tensor: " << output5_cols << std::endl;
-    tensor_print_1d(output5[batch_id], output5_cols);
+    std::cout << "Input tensor: " << output5bis_cols << std::endl;
+    tensor_print_1d(output5bis[batch_id], output5bis_cols);
     std::cout << "Processing Dense..." << std::endl;
-    output6[batch_id] = tensor_dense_1d(output5[batch_id], output5_cols, f_fc1, fc_1, fc_0,  b_fc1, ACTIVATION_FUNCTION_RELU);
+    output6[batch_id] = tensor_dense_1d(output5bis[batch_id], output5bis_cols, f_fc1, fc_1, fc_0,  b_fc1, ACTIVATION_FUNCTION_RELU);
     std::cout << "Output tensor: " << output6_cols << std::endl;
     tensor_print_1d(output6[batch_id], output6_cols);
   }
-  tensor_delete_2d(output5, batch_size);
+  tensor_delete_2d(output5bis, batch_size);
   tensor_delete_2d(f_fc1, fc_1);
   tensor_delete_1d(b_fc1);
 
