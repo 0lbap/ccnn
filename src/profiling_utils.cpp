@@ -1,6 +1,8 @@
 #include <iomanip>
 #include "profiling_utils.hpp"
 
+#ifdef ENABLE_PROFILING
+
 ProfilingData profiling_init() {
   /* PAPI variables */
   ProfilingData pd;
@@ -104,3 +106,5 @@ void profiling_stop(ProfilingData &pd) {
 void profiling_shutdown() {
   PAPI_shutdown();
 }
+
+#endif // ENABLE_PROFILING

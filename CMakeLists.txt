@@ -13,11 +13,27 @@ set(SOURCE_DIR ./src)
 # Collect all .cpp files in the source directory
 file(GLOB SOURCES "${SOURCE_DIR}/*.cpp")
 
-# Use the PAPI library for profiling
-find_library(PAPI_LIB papi)
+# Option to enable or disable profiling support
+option(ENABLE_PROFILING "Enable profiling support with PAPI" ON)
+
+if(ENABLE_PROFILING)
+  # Find the PAPI library
+  find_library(PAPI_LIB papi)
+  
+  if(PAPI_LIB)
+    message(STATUS "PAPI found: ${PAPI_LIB}")
+    # Add a define so that the source code knows profiling is enabled
+    add_compile_definitions(ENABLE_PROFILING)
+    # Link PAPI to the executable
+    target_link_libraries(ccnn ${PAPI_LIB})
+  else()
+    message(WARNING "PAPI library not found. Profiling support will be disabled.")
+    # Disable profiling if PAPI is not found
+    set(ENABLE_PROFILING OFF)
+  endif()
+else()
+  message(STATUS "Profiling support is disabled.")
+endif()
 
 # Add the executable
 add_executable(ccnn ${SOURCES})
-
-# Link libraries to the executable
-target_link_libraries(ccnn ${PAPI_LIB})
