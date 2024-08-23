@@ -2,7 +2,7 @@
 
 ## Machine learning models
 
-For now, only the LeNet model is available. Since CCNN doesn't have training support (it only does inference), the model has been trained in TensorFlow/Keras. The weights are stored in the `src/lenet/data` directory. The input image is a grayscale handwritten number "6" from the MNIST dataset (used to train our LeNet model).
+For now, only the LeNet model is available. Since CCNN doesn't have training support (it only does inference), the model has been trained in TensorFlow/Keras. The weights are stored in the `src/models/lenet/data` directory. The input image is a grayscale handwritten number "6" from the MNIST dataset (used to train our LeNet model).
 
 <div style="text-align:center;">
   <img src="./example.png" alt="Example" />
